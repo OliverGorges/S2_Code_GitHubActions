@@ -16,7 +16,6 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
     
       - name: Cleanup
-        if: ${{ github.event.inputs.delete == 'true' }}
         uses: azure/CLI@v1
         with:
           inlineScript: |
