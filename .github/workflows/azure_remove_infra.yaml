@@ -1,0 +1,30 @@
+
+on: 
+  workflow_dispatch:
+
+name: infra
+
+jobs:
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+      - name: Cleanup
+        if: ${{ github.event.inputs.delete == 'true' }}
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            echo "az extension add"
+            az extension add -n application-insights
+            echo "az monitor app-insights component delete"
+            az monitor app-insights component delete --app apimon${{ secrets.WEBAPP }} -g ${{ secrets.RG }}
+            echo "az webapp delete"
+            az webapp delete -g ${{ secrets.RG }} -n ${{ secrets.WEBAPP }}
+            echo "az appservice plan delete"
+            az appservice plan delete -g ${{ secrets.RG }} -n ${{ secrets.ASP }} -y
